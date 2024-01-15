@@ -315,6 +315,7 @@ template <typename PointRange,
           typename NamedParameters = parameters::Default_named_parameters>
 void oriented_bounding_box(const PointRange& points,
                            Output& out,
+                           bool use_random_seed,
                            const NamedParameters& np = parameters::default_values()
 #ifndef DOXYGEN_RUNNING
                            , std::enable_if_t<
@@ -348,11 +349,16 @@ void oriented_bounding_box(const PointRange& points,
   PointMap point_map = choose_parameter<PointMap>(get_parameter(np, internal_np::point_map));
 
   const bool use_ch = choose_parameter(get_parameter(np, internal_np::use_convex_hull), true);
-  const unsigned int seed = choose_parameter(get_parameter(np, internal_np::random_seed), -1); // undocumented
+  unsigned int seed = 0;
+  if(use_random_seed)
+  {
+    seed = choose_parameter(get_parameter(np, internal_np::random_seed), -1); // undocumented
+  }
 
   CGAL::Random fixed_seed_rng(seed);
   CGAL::Random& rng = is_default_parameter<NamedParameters, internal_np::random_seed_t>::value ?
                         CGAL::get_default_random() : fixed_seed_rng;
+  
 
 #ifdef CGAL_OPTIMAL_BOUNDING_BOX_DEBUG
   std::cout << "Random seed: " << rng.get_seed() << std::endl;
